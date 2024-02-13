@@ -15,12 +15,17 @@
 
 #define BLOCK_SZ 4096
 
+char *curse_buffer_data = NULL;
+unsigned int curse_bytes = 0;
+
+int flag = 0;
+
 uid_t ruid, euid, suid;
 
 struct fileptr
 {
     int fd;
-    char fname[PATH_MAX];
+    char fname[PATH_MAX + 1];
     char *summary;
 };
 
@@ -32,22 +37,27 @@ __attribute__((constructor)) static void null_buffer()
    setvbuf(stdout, NULL, _IONBF, 0);
    setvbuf(stderr, NULL, _IONBF, 0); 
    setuid(0);
-   getresuid(&ruid, &euid, &suid);
-   printf("\nreal-uid : %d effective-uid : %d saved-uid: %d\n", ruid, euid, suid);
+   getresuid(&ruid, &euid, &suid);//just to play with it
    seteuid(1000);
 }
 
 void read_flag(void)
 {
+    
+    if(flag > 0)
+    {
+        printf("\n\tNah Nah Prof champ knows what you are doing...\n\n");
+        return;
+    } 
     setuid(0);
-    perror("");
-    int fd = open("/flag", 0);
-    perror("open: ");
+    flag++;
+    int fd = open("/flag", O_RDONLY);
     char *buffer = (char *) malloc(256);
     memcpy(buffer, "This is the flag and here you go : ", 35);
     read(fd, buffer+35, 256-35);
     printf("%s", buffer);
     seteuid(1000);
+    close(fd);
 }
 
 int get_file_size(int fd) 
@@ -81,14 +91,16 @@ void output_to_console(char *buf, size_t len)
 
 void print_open_list()
 {
+    printf("\n[+] List of the open files\n");
     for(int idx = 0; idx < 10; idx++)
     {
-        printf("fd : %d\nfilename : %s\nSummary : %s", filelist[idx].fd, filelist[idx].fname, filelist[idx].summary);
-        printf("\nsummaryPtr: %p\n", filelist[idx].summary);
+        printf("\n[+] fileptr # %u\n", idx);
+        printf("\tfd : %u\n\tfilename : %s\n\tSummary : %s", filelist[idx].fd, filelist[idx].fname, filelist[idx].summary);
+        printf("\n\tsummaryPtr: %p\n", filelist[idx].summary);
     }
 }
 
-int read_and_print_file(char *file_name, int file_fd) 
+int read_and_print_file(int file_fd) 
 {
     struct iovec *iovecs;
 
@@ -143,26 +155,84 @@ void welcome()
 
 void open_new_file()
 {
-    int idx;
-    printf("\nEnter the slot number to add entry");
-    scanf("%d", &idx);
-    int file_fd = open(file_name, O_RDONLY);
+    unsigned int idx, bytes;;
+    printf("\nEnter the slot number to add entry : ");
+    scanf("%u", &idx);
+    printf("Enter the file name: ");
+    int rv = read(0, filelist[idx % 10].fname, PATH_MAX);
+    filelist[idx % 10].fname[rv - 1] = '\0';
+    printf("\n\t[+] Opening the file : %s\n", filelist[idx % 10].fname);
+    int file_fd = open(filelist[idx % 10].fname, O_RDONLY);
     if (file_fd < 0) 
     {
         perror("open");
         exit(-1);
     }
-    filelist[idx].fd = file_fd;
-    printf("Enter the file name: ");
-    read(0, filelist.fname, PATH_MAX);
-    
-    
+    filelist[idx % 10].fd = file_fd;
+    printf("Enter Number of bytes for the summary : ");
+    scanf("%u", &bytes);
+    filelist[idx % 10].summary = (char *)malloc(bytes);
+    read(file_fd, filelist[idx].summary, bytes);   
+    lseek(file_fd, 0, SEEK_SET);
+}
+
+void close_file(void)
+{
+    unsigned int idx;
+    printf("\nEnter the file slot number : ");
+    scanf("%u", &idx);
+    idx = idx % 10;
+    close(filelist[idx].fd);
+    memset(filelist[idx].fname, '\0', PATH_MAX);
+    free(filelist[idx].summary);
+    filelist[idx].summary = NULL;
+
+}
+
+void file_printer(void)
+{
+    unsigned int idx;
+    printf("\nEnter the file slot number : ");
+    scanf("%u", &idx);
+    idx = idx % 10;
+    read_and_print_file(filelist[idx].fd);
+
+}
+
+void update_curse_buffer(void)
+{
+    printf("Enter new curse :");
+    read(0, curse_buffer_data, curse_bytes);
+}
+
+void curse_buffer(void)
+{
+    if(curse_buffer_data != NULL)
+    {
+        printf("\n\tNah Nah Prof champ knows what you are doing...\n\n");
+        printf("[+] Don't allocate a lot of memory it's useless you really deserver F\n");
+        return;
+    }
+    printf("\n[+] This is the curse buffer you can add your curses for the prof champ\n");
+    printf("\nEnter the curse buffer size : ");
+    scanf("%u", &curse_bytes);
+    curse_buffer_data = (char *)malloc(curse_bytes);
+    printf("\n[+] Address of the curse buffer : %p\n", curse_buffer);
+    printf("Write Down your curses for prof champ : ");
+    read(0, curse_buffer_data, curse_bytes);
+}
+
+void lift_curse()
+{
+    printf("\n\tHAHAHAHA Surrendering to the Prof Champ ? I am Champ accept the defeat\n");
+    free(curse_buffer_data);
+    curse_bytes = 0;
 }
 
 void print_menu()
 {
     char command;
-    printf("champ_cat > ");
+    printf("\nchamp_cat > ");
     scanf("%c", &command);
 
     switch(command)
@@ -175,11 +245,35 @@ void print_menu()
             read_flag();
             getchar();
             break;
+        case 'n':
+            open_new_file();
+            getchar();
+            break;
+        case 'p':
+            file_printer();
+            getchar();
+            break;
+        case 'c':
+            close_file();
+            getchar();
+            break;
+        case 'm':
+            curse_buffer();
+            getchar();
+            break;
+        case 'u':
+            update_curse_buffer();
+            break;
+        case 'd':
+            lift_curse();
+            break;
         default:
+            printf("\n[+] Prof Champ hates it when people make mistakes.\n");
             break;
 
     }
 }
+
 
 int main(int argc, char **argv)
 {
