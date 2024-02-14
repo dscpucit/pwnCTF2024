@@ -153,6 +153,9 @@ void welcome()
     puts("\tYou have been graded F in OS and System Programming by Prof Champ now its your time to shine");
     puts("\tand show your worth to Prof Champ. Prove your worth or else you are destined to have F.");
     puts("\n\t=============================================================================================\n");
+    puts("\n\tPwning is an art think like artist");
+    puts("\tGood Luck");
+    puts("\t\t\t~Αρσλάν");
 }
 
 void open_new_file()
@@ -232,8 +235,26 @@ void lift_curse()
     free(curse_buffer_data);
 }
 
+void help()
+{
+    puts("\t=========================================");
+    puts("[+] Command options for the cat: ");
+    puts("\n\tl: print the list of the open files");
+    puts("\tn: open a new file and add it to list");
+    puts("\tc: close a file");
+    puts("\tp: print the file");
+    puts("\tu: update the curse buffer");
+    puts("\tm: Allocate the curse buffer");
+    puts("\td: Remove the curse buffer");
+    puts("\tlf: read flag into the buffer");
+
+    puts("\t=========================================");
+
+}
+
 void print_menu()
 {
+    help();
     char command;
     printf("\nchamp_cat > ");
     scanf("%c", &command);
