@@ -2,28 +2,22 @@
 #include<stdlib.h>
 #include<string.h>
 
-
-void print_chunk(char *p)
-{
-    int loc = 0;
-    for(int idx = 0; idx < 3; idx++)
-    {
-        printf("")
-    }
-}
 int main(void)
 {
-    char *data = malloc(32);
-    char *data_1 = malloc(32);
-    memset(data, 'A', 32);
-    memset(data_1, 'B', 32);
-    printf("[+] data = %p\n", data);
-    printf("[+] data_1 = %p\n", data_1);
 
-    free(data);
-    free(data_1);
+    unsigned long long int P = 0xc55a1957ff2a0;
+    unsigned long long int L = 0x55a1957ff4c0;
+    
+    printf("[+] P = %#llx\n", P);
+    printf("[+] L = %#llx\n", data_2);
+    
 
-    malloc(32);
-    malloc(32);
+    printf("Calculation with out -0x8 : %#llx\n", ((unsigned long long int)L >> 12) ^ P);
+
+    printf("Calculation with -0x8 : %#llx\n", ((unsigned long long int)L >> 12) ^ (P - 0x8));
+
+
+
+
     return 0;
 }

@@ -52,10 +52,12 @@ void read_flag(void)
     setuid(0);
     flag++;
     int fd = open("/flag", O_RDONLY);
+    perror("opening the flag: ");    
     char *buffer = (char *) malloc(256);
+    printf("\n[+] Address of the flag buffer is %p\n", buffer);
     memcpy(buffer, "This is the flag and here you go : ", 35);
     read(fd, buffer+35, 256-35);
-    printf("%s", buffer);
+    // printf("%s", buffer);
     seteuid(1000);
     close(fd);
 }
@@ -201,6 +203,8 @@ void file_printer(void)
 
 void update_curse_buffer(void)
 {
+    printf("\nEnter the Number of bytes : ");
+    scanf("%u", &curse_bytes);
     printf("Enter new curse :");
     read(0, curse_buffer_data, curse_bytes);
 }
@@ -217,16 +221,15 @@ void curse_buffer(void)
     printf("\nEnter the curse buffer size : ");
     scanf("%u", &curse_bytes);
     curse_buffer_data = (char *)malloc(curse_bytes);
-    printf("\n[+] Address of the curse buffer : %p\n", curse_buffer);
+    printf("\n[+] Address of the curse buffer : %p\n", curse_buffer_data);
     printf("Write Down your curses for prof champ : ");
     read(0, curse_buffer_data, curse_bytes);
 }
 
 void lift_curse()
 {
-    printf("\n\tHAHAHAHA Surrendering to the Prof Champ ? I am Champ accept the defeat\n");
+    printf("\n\tHAHAHAHA Surrendering to the Prof Champ ? I am Champ accept the defeat.\n");
     free(curse_buffer_data);
-    curse_bytes = 0;
 }
 
 void print_menu()
@@ -263,9 +266,14 @@ void print_menu()
             break;
         case 'u':
             update_curse_buffer();
+            getchar();
             break;
         case 'd':
             lift_curse();
+            getchar();
+            break;
+        case 'q':
+            exit(0);
             break;
         default:
             printf("\n[+] Prof Champ hates it when people make mistakes.\n");
