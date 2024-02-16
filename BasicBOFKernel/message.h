@@ -4,7 +4,11 @@
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
+#include <linux/slab.h>
+#include <linux/init_task.h>
 #include <linux/fs.h>
+#include <linux/sched.h>
+#include <linux/kernel_read_file.h>
 #include <linux/uaccess.h>
 
 #ifndef BASIC_H

