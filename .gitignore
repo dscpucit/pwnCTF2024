@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 
+bzImage
+
 # Object files
 *.o
 *.ko
